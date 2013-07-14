@@ -67,9 +67,9 @@
 		
 		public function  nextIteration(){
 			
-			var DV:uint = 5;
+			var DV:uint = 1;
 			var eps:Number = 0.9;
-			var pwr:Number = 10.0;
+			var pwr:Number = 0.3;
 			var pnt:Point = new Point(0,0);
 			
 			
@@ -99,7 +99,7 @@
 				//if ( dude.getPixel(ClR,RwR) == 40931) 
 				//	pixelsR[i].v = 1;
 				
-				quantum[i].direction += (Math.random() - 0.5)*Math.PI * dMax/180;
+				quantum[i].direction += (Math.random() - 0.5)*Math.PI * dMax*vMax/180;
 				
 				quantum[i].vx = quantum[i].v * Math.cos(quantum[i].direction);
 				quantum[i].vy = quantum[i].v * Math.sin(quantum[i].direction);
@@ -110,9 +110,12 @@
 				
 				
 				
-				r = (quantum[i].x - modelWidth/2)*(quantum[i].x - modelHeight/2) + (quantum[i].y - modelWidth/2)*(quantum[i].y - modelHeight/2);
-				r = Math.pow(r,0.5)/R;
-				r = Math.pow(r,10);
+				//r = (quantum[i].x - modelWidth/2)*(quantum[i].x - modelHeight/2) + (quantum[i].y - modelWidth/2)*(quantum[i].y - modelHeight/2);
+				//r = Math.pow(r,0.5)/R;
+				//r = Math.pow(r,10);
+				
+				//r = Math.pow((quantum[i].v - eps)/vMax, 40);
+				r = 0.1;
 				
 				if (Math.random() < r) {
 					
@@ -130,9 +133,9 @@
 			
 		}
 		
-		public function drawModel(bitmapDataDst:BitmapData){
+		public function drawModel(bitmapDataDst:BitmapData, tail:uint = 5){
 			
-			var ln:Number = 2;
+			var ln:Number = tail;
 			var clrPow:Number = 5;
 			var clr:Number; 
 			
