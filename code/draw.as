@@ -18,6 +18,7 @@
 	
     import flash.display.Sprite;
     import fl.controls.NumericStepper;
+	
 	 
 	
 	public class draw extends Sprite {
@@ -32,7 +33,7 @@
 		public static const V_MAX:Number = 1;
 		public static const D_MAX:Number = 10;
 		
-        public static const PARTICLES:uint = 500;
+        public static const PARTICLES:uint = 5000;
         
         
         private var pixelsR:Vector.<Pixel> = new Vector.<Pixel>
@@ -52,6 +53,10 @@
 		private var filter:BlurFilter = new BlurFilter(3,3,BitmapFilterQuality.HIGH);
 		
 		private var dude:BitmapData = new dudaism();
+		
+		var generator:RWPointsGenerator;
+		
+		var randomWalkModel:RWModel;
 		
 		
 
@@ -92,12 +97,23 @@
             stage.addEventListener(Event.ENTER_FRAME,__onEnterFrame);          
 			
 			
+			generator = new RWPointsGenerator(dude);
+			
+			/*
+			for(var k:uint=0; k<PARTICLES; k++){
+					var point:Point = generator.generatePoint();
+
+					var pix:Pixel = new Pixel(point.x, point.y, 0.5, Math.random()*Math.PI*2);
+					pixelsR.push(pix);
+				}
+					
+				/*
 			for(var k:uint=0; k<PARTICLES; k++){
 				//var pix:Pixel = new Pixel(Math.random()*WIDTH, Math.random()*HEIGHT, Math.random()*V_MAX, Math.random()*Math.PI*2);
 				var pix:Pixel = new Pixel(WIDTH/2, HEIGHT/2, Math.random()*V_MAX, Math.random()*Math.PI*2);
 				pixelsR.push(pix);
-			}
-			
+			}*/
+			/*
 			for(var k:uint=0; k<PARTICLES; k++){
 				//var pix:Pixel = new Pixel(Math.random()*WIDTH, Math.random()*HEIGHT, Math.random()*V_MAX, Math.random()*Math.PI*2);
 				var pix:Pixel = new Pixel(WIDTH/2, HEIGHT/2 - 0, Math.random()*V_MAX, Math.random()*Math.PI*2);
@@ -109,6 +125,10 @@
 				var pix:Pixel = new Pixel(WIDTH/2, HEIGHT/2, Math.random()*V_MAX, Math.random()*Math.PI*2);
 				pixelsB.push(pix);
 			}
+			*/
+			
+			randomWalkModel = new RWModel(dude, dude, WIDTH, HEIGHT, PARTICLES);
+
 
 			
         }           
@@ -116,7 +136,25 @@
         /**
         * Render the particles
         **/        
-        private function __render():void{  
+		
+		
+		private function __render():void{  
+			__screen.bitmapData.draw(__blankBitmapData);
+			randomWalkModel.nextIteration();
+			
+			for(var i:uint=0; i<randomWalkModel.quantum.length; i++){
+
+				__screen.bitmapData.setPixel(Math.round(randomWalkModel.quantum[i].x), Math.round(randomWalkModel.quantum[i].y),
+												 Math.round(100 * 000) * (256*256)  +  
+												 Math.round(100 * 200) * (256)  +  
+												 Math.round(100 * 250) * (1));
+			}
+
+
+		}
+			
+			
+        private function __render_old():void{  
 			
 			__screen.bitmapData.draw(__blankBitmapData);
 			
@@ -215,6 +253,7 @@
 				
 				if (Math.random() < r) {
 					
+					/*
 					if (Math.random()>0.5){
 						pixelsR[i].x = eyeL.x + (Math.random() - 0.5)*area;
 						pixelsR[i].y = eyeL.y + (Math.random() - 0.5)*area;
@@ -223,6 +262,13 @@
 						pixelsR[i].x = eyeR.x + (Math.random() - 0.5)*area;
 						pixelsR[i].y = eyeR.y + (Math.random() - 0.5)*area;;
 					}
+					*/
+					
+					var point:Point = generator.generatePoint();
+					pixelsR[i].x = point.x;
+					pixelsR[i].y = point.y;
+					pixelsR[i].v = 0.01;
+					
 					
 				}
 				
@@ -479,4 +525,8 @@ internal class Debug extends TextField{
     }
 
 }
-
+/*
+danilova@spb.bcs.ru
+680 27 27 
+8 921 647 27 79  анастасия 
+*/

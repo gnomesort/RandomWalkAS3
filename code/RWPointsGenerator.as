@@ -7,20 +7,27 @@
 	public class RWPointsGenerator {
 
 		public var binaryMask:BitmapData;
+		public var density:int;
 		
-		//private function initGenerator();
+		private var generator:Vector.<Point> = new Vector.<Point>;
 		
 		
-		public function generatePoint():Point {
+		public function RWPointsGenerator(bmp:BitmapData, dns:int = 5) {
 			
-			var p:Point = new Point(100,100);
-			return p;
+			density = dns;
+			for (var x:int = 0; x < bmp.width; x +=density)
+				for (var y:int = 0; y < bmp.height; y +=density){
+					if (bmp.getPixel(x,y) != 0)
+						generator.push(new Point(x,y));
+					}
 			
 		}
 		
-		public function RWPointsGenerator(bmp:BitmapData) {
+		public function generatePoint():Point {
 			
-			// constructor code
+			var index:int = Math.round(Math.random()*(generator.length - 1));
+			return generator[index];
+			
 		}
 
 	}
