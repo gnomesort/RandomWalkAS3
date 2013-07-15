@@ -33,7 +33,7 @@
 		public static const V_MAX:Number = 1;
 		public static const D_MAX:Number = 10;
 		
-        public static const PARTICLES:uint = 500;
+        public static const PARTICLES:uint = 6200;
         
         
         private var pixelsR:Vector.<Pixel> = new Vector.<Pixel>
@@ -51,8 +51,13 @@
         //private var __debug:Debug = new Debug();
 		
 		private var filter:BlurFilter = new BlurFilter(3,3,BitmapFilterQuality.HIGH);
+
+		private var darn:BitmapData = new darina();
+		private var dude:BitmapData = new cat();
 		
-		private var dude:BitmapData = new dudaism();
+		private var WEIGHT:Number = 0;
+		
+		
 		
 		var generator:RWPointsGenerator;
 		
@@ -82,7 +87,9 @@
         **/
         private function __init():void{
             __screen = new Bitmap(new BitmapData(WIDTH,HEIGHT,true,0xFF000000),"auto",true);
-            __blankBitmapData = new BitmapData(WIDTH,HEIGHT,true,0x02000000);               
+            //__blankBitmapData = new BitmapData(WIDTH,HEIGHT,true,0x02000000);               
+			__blankBitmapData = new BitmapData(WIDTH,HEIGHT,true,0x0F100000);               
+			
             // adding the Screen
             addChild(__screen);  
             //addChild(__debug);            
@@ -91,12 +98,13 @@
             //addChild(__info);
             
             // smooth motion please                   
-            stage.frameRate = 10;
+            stage.frameRate = 60;
             // some listeners
             stage.addEventListener(MouseEvent.MOUSE_DOWN,__onMouseDown);           
             stage.addEventListener(Event.ENTER_FRAME,__onEnterFrame);          
 			
-			randomWalkModel = new RWModel(dude, dude, WIDTH, HEIGHT, PARTICLES, 3, 40);
+			randomWalkModel = new RWModel(darn, dude, darn, WIDTH, HEIGHT, PARTICLES, 1, 40);
+			randomWalkModel.updateGenerator(dude, darn, 1);
 
 
 			
@@ -104,11 +112,23 @@
        
 		
 		private function __render():void{  
-			//__screen.bitmapData.draw(__blankBitmapData);
-			randomWalkModel.nextIteration();
-			randomWalkModel.drawModel(__screen.bitmapData, 10);
+			__screen.bitmapData.draw(__blankBitmapData);
 			
-			__screen.bitmapData.applyFilter(__screen.bitmapData, __screen.bitmapData.rect, new Point(0,0), filter);
+			var dWeight:Number = 0.1;
+			if (__mouseIsDown && WEIGHT < 1){
+				WEIGHT += dWeight;
+				randomWalkModel.updateMergeWeight(WEIGHT);
+				}
+				
+			if (!__mouseIsDown && WEIGHT > 0){
+				WEIGHT -= dWeight;
+				randomWalkModel.updateMergeWeight(WEIGHT);
+				}
+				
+			randomWalkModel.nextIteration();
+			randomWalkModel.drawModel(__screen.bitmapData, 1);
+			
+			//__screen.bitmapData.applyFilter(__screen.bitmapData, __screen.bitmapData.rect, new Point(0,0), filter);
 			
 
 		}
@@ -128,6 +148,7 @@
             stage.removeEventListener(MouseEvent.MOUSE_UP,__onMouseUp);
             stage.addEventListener(MouseEvent.MOUSE_DOWN,__onMouseDown);
             __mouseIsDown = false;
+		
         }
 		
 		

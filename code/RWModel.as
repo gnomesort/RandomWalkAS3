@@ -24,23 +24,30 @@
 		private var vMax:Number = 1;
 		private var dMax:Number = 10;
 		
-		private var bitmap:BitmapData;
+		private var DV:uint = 1;
+		private var eps:Number = 0.9;
+		
+		public var bitmap:BitmapData;
 		private var template:BitmapData;
 
 		public var quantum:Vector.<RWQuantum> = new Vector.<RWQuantum>; 
-		public var generator:RWPointsGenerator;
+		
+		//public var generator:RWPointsGenerator;
+		public var generator:RWMergeGenerator;
 		
 		private var invertion:Boolean = false;
 
 		
 		private var ratio:Point = new Point();
+		
+		public var merge:Boolean = false;
 
 		
-		public function RWModel(_bitmap:BitmapData, _template:BitmapData, _width:uint, _height:uint, _capacity:uint, _vmax:Number = 1, _dmax:Number = 10) {
+		public function RWModel(_bitmap:BitmapData, _template1, _template2:BitmapData, _width:uint, _height:uint, _capacity:uint, _vmax:Number = 1, _dmax:Number = 10) {
 			// constructor code
 			
 			bitmap = _bitmap;
-			template = _template;
+			template = _template1;
 			capacity = _capacity;
 			modelWidth = _width;
 			modelHeight = _height;
@@ -52,7 +59,8 @@
 			ratio.y = (bitmap.height-1)/(modelHeight);
 			
 			
-			generator = new RWPointsGenerator(template);
+			//generator = new RWPointsGenerator(template);
+			generator = new RWMergeGenerator(_template1, _template2, 0);
 			
 			for(var k:uint=0; k<capacity; k++){
 					var point:Point = generator.generatePoint();
@@ -67,9 +75,8 @@
 		
 		public function  nextIteration(){
 			
-			var DV:uint = 1;
-			var eps:Number = 0.9;
-			var pwr:Number = 0.3;
+			
+			var pwr:Number = 0.1;
 			var pnt:Point = new Point(0,0);
 			
 			
@@ -77,7 +84,6 @@
 			var val, valR, valG, valB :Number;
 			var r, R, area:Number;
 			R = modelWidth/2;
-			area = 30;
 			
 			for(var i:uint=0; i<capacity; i++){
 			
@@ -142,7 +148,7 @@
 			for(var i:uint=0; i<capacity; i++){
 				
 				for (var l:int = 0; l<ln; l++){
-					clr = 1; //= - Math.pow((pixelsR[i].v-eps)/V_MAX/DV, clrPow);
+					clr = 1;// - Math.pow((quantum[i].v-eps)/vMax/DV, clrPow);
 					bitmapDataDst.setPixel(Math.round(quantum[i].x - quantum[i].vx * l/ln), 
 												 Math.round(quantum[i].y - quantum[i].vy * l/ln),
 												 Math.round(clr * 000) * (256*256)  +  
@@ -153,6 +159,19 @@
 				}
 			}
 
+		}
+		
+		
+		public function updateGenerator(_template1, _template2:BitmapData, _weight:Number, dns:uint = 5){
+			
+			generator = new RWMergeGenerator(_template1, _template2, _weight, dns);
+			
+		}
+		
+		public function updateMergeWeight(_weight:Number){
+			
+			generator.weight = _weight;
+			
 		}
 
 	}
@@ -189,34 +208,42 @@ internal class RWQuantum {
 }
 
 	import flash.geom.Point;
-    import flash.events.MouseEvent;
     import flash.geom.Matrix;
-    import flash.events.Event;
+    
     import flash.display.BitmapData;
     import flash.display.Bitmap;
-	import flash.filters.BitmapFilter;
-    import flash.filters.BitmapFilterQuality;
-    import flash.filters.BlurFilter;
-	import flash.filters.*;
-	import flash.geom.Rectangle;
-	import flash.geom.ColorTransform;
 
-internal class RWPointsGenerator {
+ internal class RWPointsGenerator {
 
 		public var binaryMask:BitmapData;
 		public var density:int;
 		
-		private var generator:Vector.<Point> = new Vector.<Point>;
+		public var generator:Vector.<Point> = new Vector.<Point>;
 		
 		
 		public function RWPointsGenerator(bmp:BitmapData, dns:int = 5) {
 			
 			density = dns;
+			//density = 50;
+			
+			var valueR, valueG, valueB:Number;
+			var p:Point;
+			
 			for (var x:int = 0; x < bmp.width; x +=density)
 				for (var y:int = 0; y < bmp.height; y +=density){
-					if (bmp.getPixel(x,y) != 0)
-						generator.push(new Point(x,y));
+					
+					valueR = bmp.getPixel(x,y)%256;
+					valueG = bmp.getPixel(x,y)%(256*256)/256;
+					valueB = bmp.getPixel(x,y)/256/256;
+					
+					//if (bmp.getPixel(x,y) != 0)
+					if ((valueR>50)||(valueG>50)||(valueB>50)){
+						p = new Point(Math.round(x + (Math.random()-0.5)*density),
+											Math.round(y + (Math.random()-0.5)*density));
+						generator.push(p);
 					}
+					
+				}
 			
 		}
 		
@@ -226,5 +253,33 @@ internal class RWPointsGenerator {
 			return generator[index];
 			
 		}
+		
+		
 
+}
+
+internal class RWMergeGenerator{
+	
+	public var generator1:RWPointsGenerator;
+	public var generator2:RWPointsGenerator;
+	public var weight:Number;
+	
+	public function RWMergeGenerator(bmp1, bmp2:BitmapData, _weight:Number, dns:int = 5) {
+			generator1 = new RWPointsGenerator(bmp1, dns);
+			generator2 = new RWPointsGenerator(bmp2, dns);
+			weight = _weight;
 	}
+	
+	public function generatePoint():Point {
+			var index:int;
+			if (Math.random() > weight){
+				return generator1.generatePoint();
+			} else {
+				return generator2.generatePoint();
+			}
+			
+			
+		} 
+
+}
+	
