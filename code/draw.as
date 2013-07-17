@@ -14,6 +14,7 @@
 	import flash.geom.ColorTransform;
 	
 	
+	
 
 	
     import flash.display.Sprite;
@@ -36,9 +37,7 @@
         public static const PARTICLES:uint = 6200;
         
         
-        private var pixelsR:Vector.<Pixel> = new Vector.<Pixel>
-		private var pixelsG:Vector.<Pixel> = new Vector.<Pixel>
-		private var pixelsB:Vector.<Pixel> = new Vector.<Pixel>
+        
 		
         
         private var __screen:Bitmap;   
@@ -52,8 +51,12 @@
 		
 		private var filter:BlurFilter = new BlurFilter(3,3,BitmapFilterQuality.HIGH);
 
-		private var darn:BitmapData = new darina();
-		private var dude:BitmapData = new cat();
+		//private var darn:BitmapData = new inna();
+		//private var dude:BitmapData = new cat();
+		
+		private var inputImage:BitmapData = new inna();
+		
+		
 		
 		private var WEIGHT:Number = 0;
 		
@@ -88,7 +91,7 @@
         private function __init():void{
             __screen = new Bitmap(new BitmapData(WIDTH,HEIGHT,true,0xFF000000),"auto",true);
             //__blankBitmapData = new BitmapData(WIDTH,HEIGHT,true,0x02000000);               
-			__blankBitmapData = new BitmapData(WIDTH,HEIGHT,true,0x0F100000);               
+			__blankBitmapData = new BitmapData(WIDTH,HEIGHT,true,0xFF000000);               
 			
             // adding the Screen
             addChild(__screen);  
@@ -103,8 +106,8 @@
             stage.addEventListener(MouseEvent.MOUSE_DOWN,__onMouseDown);           
             stage.addEventListener(Event.ENTER_FRAME,__onEnterFrame);          
 			
-			randomWalkModel = new RWModel(darn, dude, darn, WIDTH, HEIGHT, PARTICLES, 1, 40);
-			randomWalkModel.updateGenerator(dude, darn, 1);
+			randomWalkModel = new RWModel(inputImage, inputImage, inputImage, WIDTH, HEIGHT, PARTICLES, 3, 10);
+			//randomWalkModel.updateGenerator(inputImage, inputImage, 1);
 
 
 			
@@ -115,18 +118,25 @@
 			__screen.bitmapData.draw(__blankBitmapData);
 			
 			var dWeight:Number = 0.1;
+			
 			if (__mouseIsDown && WEIGHT < 1){
-				WEIGHT += dWeight;
-				randomWalkModel.updateMergeWeight(WEIGHT);
+				//WEIGHT += dWeight;
+				//randomWalkModel.updateMergeWeight(WEIGHT);
+				//randomWalkModel.paletteR += 0.1;
+				
+				
 				}
 				
 			if (!__mouseIsDown && WEIGHT > 0){
-				WEIGHT -= dWeight;
-				randomWalkModel.updateMergeWeight(WEIGHT);
+				//randomWalkModel.paletteR += 0.1;
+				//WEIGHT -= dWeight;
+				//randomWalkModel.updateMergeWeight(WEIGHT);
 				}
 				
+			//randomWalkModel.paletteR += 0.1;
+				
 			randomWalkModel.nextIteration();
-			randomWalkModel.drawModel(__screen.bitmapData, 1);
+			randomWalkModel.drawModel(__screen.bitmapData, 3);
 			
 			//__screen.bitmapData.applyFilter(__screen.bitmapData, __screen.bitmapData.rect, new Point(0,0), filter);
 			

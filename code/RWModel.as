@@ -28,6 +28,12 @@
 		private var eps:Number = 0.9;
 		
 		public var bitmap:BitmapData;
+		
+		public var paletteR:Number = 0.99;
+		public var paletteG:Number = 0.99;
+		public var paletteB:Number = 0.99;
+		
+		
 		private var template:BitmapData;
 
 		public var quantum:Vector.<RWQuantum> = new Vector.<RWQuantum>; 
@@ -60,7 +66,7 @@
 			
 			
 			//generator = new RWPointsGenerator(template);
-			generator = new RWMergeGenerator(_template1, _template2, 0);
+			generator = new RWMergeGenerator(_template1, _template1, 0, 5, modelWidth, modelHeight);
 			
 			for(var k:uint=0; k<capacity; k++){
 					var point:Point = generator.generatePoint();
@@ -76,7 +82,7 @@
 		public function  nextIteration(){
 			
 			
-			var pwr:Number = 0.1;
+			var pwr:Number = 10;
 			var pnt:Point = new Point(0,0);
 			
 			
@@ -121,7 +127,7 @@
 				//r = Math.pow(r,10);
 				
 				//r = Math.pow((quantum[i].v - eps)/vMax, 40);
-				r = 0.1;
+				r = 0.01;
 				
 				if (Math.random() < r) {
 					
@@ -142,18 +148,19 @@
 		public function drawModel(bitmapDataDst:BitmapData, tail:uint = 5){
 			
 			var ln:Number = tail;
-			var clrPow:Number = 5;
+			var clrPow:Number = 1;
 			var clr:Number; 
 			
 			for(var i:uint=0; i<capacity; i++){
 				
 				for (var l:int = 0; l<ln; l++){
+					//clr = 1 - Math.pow((quantum[i].v-eps)/vMax/DV, clrPow);
 					clr = 1;// - Math.pow((quantum[i].v-eps)/vMax/DV, clrPow);
 					bitmapDataDst.setPixel(Math.round(quantum[i].x - quantum[i].vx * l/ln), 
 												 Math.round(quantum[i].y - quantum[i].vy * l/ln),
-												 Math.round(clr * 000) * (256*256)  +  
-												 Math.round(clr * 200) * (256)  +  
-												 Math.round(clr * 250) * (1));
+												 Math.round(clr * 255 * paletteB) * (256*256)  +  
+												 Math.round(clr * 255 * paletteG) * (256)  +  
+												 Math.round(clr * 255 * paletteR) * (1));
 					
 					
 				}
@@ -219,15 +226,32 @@ internal class RWQuantum {
 		public var density:int;
 		
 		public var generator:Vector.<Point> = new Vector.<Point>;
+	 
+		public var outWidth;
+		public var outHeight;
+	 
+	 
 		
-		
-		public function RWPointsGenerator(bmp:BitmapData, dns:int = 5) {
+		public var inversion:Boolean = false;
+		public function RWPointsGenerator(bmp:BitmapData, dns:int = 5, _outWidth:uint = 0, _outHeight:uint = 0) {
 			
 			density = dns;
 			//density = 50;
 			
 			var valueR, valueG, valueB:Number;
 			var p:Point;
+
+			if (_outWidth != 0 && _outHeight !=0){
+				outWidth = _outWidth;
+				outHeight = _outHeight;
+				
+			} else {
+				outWidth = bmp.width;
+				outHeight = bmp.height;
+			}
+
+			var ratioWidth:Number = (Number)(outWidth)/(Number)(bmp.width);
+			var ratioHeight:Number = (Number)(outHeight)/(Number)(bmp.height);
 			
 			for (var x:int = 0; x < bmp.width; x +=density)
 				for (var y:int = 0; y < bmp.height; y +=density){
@@ -236,13 +260,16 @@ internal class RWQuantum {
 					valueG = bmp.getPixel(x,y)%(256*256)/256;
 					valueB = bmp.getPixel(x,y)/256/256;
 					
-					//if (bmp.getPixel(x,y) != 0)
-					if ((valueR>50)||(valueG>50)||(valueB>50)){
-						p = new Point(Math.round(x + (Math.random()-0.5)*density),
-											Math.round(y + (Math.random()-0.5)*density));
-						generator.push(p);
-					}
 					
+					if ((valueR>50)||(valueG>50)||(valueB>50)){
+						
+						//p = new Point(Math.round( (Number)(outWidth)/(Number)(bmp.width) * x),
+						//			  Math.round( 2.01 * y) );
+						
+						p = new Point(Math.round(x*ratioWidth +  (Math.random()-0.5)*density*ratioWidth), 
+									  Math.round(y*ratioHeight + (Math.random()-0.5)*density*ratioHeight));
+						generator.push(p);
+					} 					
 				}
 			
 		}
@@ -264,9 +291,9 @@ internal class RWMergeGenerator{
 	public var generator2:RWPointsGenerator;
 	public var weight:Number;
 	
-	public function RWMergeGenerator(bmp1, bmp2:BitmapData, _weight:Number, dns:int = 5) {
-			generator1 = new RWPointsGenerator(bmp1, dns);
-			generator2 = new RWPointsGenerator(bmp2, dns);
+	public function RWMergeGenerator(bmp1, bmp2:BitmapData, _weight:Number, dns:int = 5,  _outWidth:uint = 0, _outHeight:uint = 0) {
+			generator1 = new RWPointsGenerator(bmp1, dns, _outWidth, _outHeight);
+			generator2 = new RWPointsGenerator(bmp2, dns, _outWidth, _outHeight);
 			weight = _weight;
 	}
 	
@@ -275,7 +302,7 @@ internal class RWMergeGenerator{
 			if (Math.random() > weight){
 				return generator1.generatePoint();
 			} else {
-				return generator2.generatePoint();
+				return generator1.generatePoint();
 			}
 			
 			
