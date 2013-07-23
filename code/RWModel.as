@@ -21,17 +21,18 @@
 		private var modelWidth:uint = 1000;  
         private var modelHeight:uint = 1000;        
         
-		private var vMax:Number = 1;
-		private var dMax:Number = 10;
+		public var vMax:Number = 1;
+		public var dMax:Number = 10;
 		
-		private var DV:uint = 1;
-		private var eps:Number = 0.9;
+		public var DV:uint = 1;
+		public var EPS:Number = 0.9;
+		public var PWR:Number = 10;
 		
 		public var bitmap:BitmapData;
 		
-		public var paletteR:Number = 0.99;
-		public var paletteG:Number = 0.99;
-		public var paletteB:Number = 0.99;
+		public var paletteR:Number = 0.81;
+		public var paletteG:Number = 0.98;
+		public var paletteB:Number = 0.98;
 		
 		
 		private var template:BitmapData;
@@ -82,7 +83,7 @@
 		public function  nextIteration(){
 			
 			
-			var pwr:Number = 10;
+			var pwr:Number = PWR;
 			var pnt:Point = new Point(0,0);
 			
 			
@@ -106,7 +107,7 @@
 				
 				if (invertion == true) val = 1 - val;
 				
-				quantum[i].v = vMax * Math.pow(val, pwr) * DV + eps;
+				quantum[i].v = vMax * Math.pow(val, pwr) * DV + EPS;
 				
 				//if ( dude.getPixel(ClR,RwR) == 40931) 
 				//	pixelsR[i].v = 1;
@@ -122,12 +123,12 @@
 				
 				
 				
-				//r = (quantum[i].x - modelWidth/2)*(quantum[i].x - modelHeight/2) + (quantum[i].y - modelWidth/2)*(quantum[i].y - modelHeight/2);
-				//r = Math.pow(r,0.5)/R;
-				//r = Math.pow(r,10);
+				r = (quantum[i].x - modelWidth/2)*(quantum[i].x - modelHeight/2) + (quantum[i].y - modelWidth/2)*(quantum[i].y - modelHeight/2);
+				r = Math.pow(r,0.5)/R;
+				r = Math.pow(r,10);
 				
-				//r = Math.pow((quantum[i].v - eps)/vMax, 40);
-				r = 0.01;
+				//r = Math.pow((quantum[i].v - EPS)/vMax, 40);
+				//r = 0.03;
 				
 				if (Math.random() < r) {
 					
@@ -156,11 +157,29 @@
 				for (var l:int = 0; l<ln; l++){
 					//clr = 1 - Math.pow((quantum[i].v-eps)/vMax/DV, clrPow);
 					clr = 1;// - Math.pow((quantum[i].v-eps)/vMax/DV, clrPow);
+					
+					/*
 					bitmapDataDst.setPixel(Math.round(quantum[i].x - quantum[i].vx * l/ln), 
-												 Math.round(quantum[i].y - quantum[i].vy * l/ln),
-												 Math.round(clr * 255 * paletteB) * (256*256)  +  
-												 Math.round(clr * 255 * paletteG) * (256)  +  
-												 Math.round(clr * 255 * paletteR) * (1));
+										   Math.round(quantum[i].y - quantum[i].vy * l/ln),
+										   Math.round(clr * 255 * paletteB) * (256*256)  +  
+										   Math.round(clr * 255 * paletteG) * (256)  +  
+										   Math.round(clr * 255 * paletteR) * (1));
+					*/
+					
+					var row:uint = Math.round(quantum[i].y * ratio.y);
+					var col:uint = Math.round(quantum[i].x * ratio.x);
+		
+					var value:Number = bitmap.getPixel(col,row);
+					
+					bitmapDataDst.setPixel(Math.round(quantum[i].x - quantum[i].vx * l/ln), 
+										   Math.round(quantum[i].y - quantum[i].vy * l/ln),
+										   value);
+										   
+					/*
+					valR = 1 - bitmap.getPixel(col,row)%256;
+					valG = 1 - bitmap.getPixel(col,row)%(256*256)/256;
+					valB = 1 - bitmap.getPixel(col,row)/256/256;
+					*/
 					
 					
 				}
@@ -261,7 +280,7 @@ internal class RWQuantum {
 					valueB = bmp.getPixel(x,y)/256/256;
 					
 					
-					if ((valueR>50)||(valueG>50)||(valueB>50)){
+					if ((valueR>20)||(valueG>20)||(valueB>20)){
 						
 						//p = new Point(Math.round( (Number)(outWidth)/(Number)(bmp.width) * x),
 						//			  Math.round( 2.01 * y) );

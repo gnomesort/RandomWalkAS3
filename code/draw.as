@@ -34,11 +34,9 @@
 		public static const V_MAX:Number = 1;
 		public static const D_MAX:Number = 10;
 		
-        public static const PARTICLES:uint = 6200;
+        public static const PARTICLES:uint = 2000;
         
         
-        
-		
         
         private var __screen:Bitmap;   
         private var __blankBitmapData:BitmapData;
@@ -56,10 +54,10 @@
 		
 		private var inputImage:BitmapData = new inna();
 		
-		
-		
 		private var WEIGHT:Number = 0;
-		
+		private var density:Number = 3;
+		public var transparent:uint = 0x08000000;
+
 		
 		
 		var generator:RWPointsGenerator;
@@ -90,8 +88,8 @@
         **/
         private function __init():void{
             __screen = new Bitmap(new BitmapData(WIDTH,HEIGHT,true,0xFF000000),"auto",true);
-            //__blankBitmapData = new BitmapData(WIDTH,HEIGHT,true,0x02000000);               
-			__blankBitmapData = new BitmapData(WIDTH,HEIGHT,true,0xFF000000);               
+            __blankBitmapData = new BitmapData(WIDTH,HEIGHT,true,transparent);               
+			//__blankBitmapData = new BitmapData(WIDTH,HEIGHT,true,0xFF000000);               
 			
             // adding the Screen
             addChild(__screen);  
@@ -106,7 +104,12 @@
             stage.addEventListener(MouseEvent.MOUSE_DOWN,__onMouseDown);           
             stage.addEventListener(Event.ENTER_FRAME,__onEnterFrame);          
 			
-			randomWalkModel = new RWModel(inputImage, inputImage, inputImage, WIDTH, HEIGHT, PARTICLES, 3, 10);
+			randomWalkModel = new RWModel(inputImage, inputImage, inputImage, WIDTH, HEIGHT, PARTICLES, 5, 20);
+			
+			randomWalkModel.dMax = 10;
+			randomWalkModel.vMax = 10;
+			density = 3;
+			
 			//randomWalkModel.updateGenerator(inputImage, inputImage, 1);
 
 
@@ -115,29 +118,19 @@
        
 		
 		private function __render():void{  
+			
+			//if (!__mouseIsDown)
 			__screen.bitmapData.draw(__blankBitmapData);
 			
 			var dWeight:Number = 0.1;
 			
-			if (__mouseIsDown && WEIGHT < 1){
-				//WEIGHT += dWeight;
-				//randomWalkModel.updateMergeWeight(WEIGHT);
-				//randomWalkModel.paletteR += 0.1;
-				
-				
-				}
-				
-			if (!__mouseIsDown && WEIGHT > 0){
-				//randomWalkModel.paletteR += 0.1;
-				//WEIGHT -= dWeight;
-				//randomWalkModel.updateMergeWeight(WEIGHT);
-				}
 				
 			//randomWalkModel.paletteR += 0.1;
 				
 			randomWalkModel.nextIteration();
-			randomWalkModel.drawModel(__screen.bitmapData, 3);
+			randomWalkModel.drawModel(__screen.bitmapData, density);
 			
+			//if (__mouseIsDown)
 			//__screen.bitmapData.applyFilter(__screen.bitmapData, __screen.bitmapData.rect, new Point(0,0), filter);
 			
 
@@ -152,12 +145,26 @@
             stage.removeEventListener(MouseEvent.MOUSE_DOWN,__onMouseDown);
             stage.addEventListener(MouseEvent.MOUSE_UP,__onMouseUp);
             __mouseIsDown = true;
+			
+			randomWalkModel.dMax = 0;
+			randomWalkModel.vMax = 30;
+			density = 5;
+			
+			transparent = 0x00000000;
+			
         }
         
         private function __onMouseUp($e:MouseEvent):void{
             stage.removeEventListener(MouseEvent.MOUSE_UP,__onMouseUp);
             stage.addEventListener(MouseEvent.MOUSE_DOWN,__onMouseDown);
             __mouseIsDown = false;
+			
+			
+			randomWalkModel.dMax = 10;
+			randomWalkModel.vMax = 10;
+			density = 3;
+			transparent = 0x01000000;
+
 		
         }
 		
