@@ -52,7 +52,9 @@
 		//private var darn:BitmapData = new inna();
 		//private var dude:BitmapData = new cat();
 		
-		private var inputImage:BitmapData = new inna();
+		//private var inputImage:BitmapData = new inna();
+		private var inputImage:BitmapData = new darina();
+		
 		
 		private var WEIGHT:Number = 0;
 		private var density:Number = 3;
@@ -147,8 +149,12 @@
             __mouseIsDown = true;
 			
 			randomWalkModel.dMax = 0;
-			randomWalkModel.vMax = 30;
-			density = 5;
+			randomWalkModel.vMax = 40;
+			
+			randomWalkModel.updateBitmab(new fox());
+			
+			density = 7;
+			
 			
 			transparent = 0x00000000;
 			
@@ -163,6 +169,7 @@
 			randomWalkModel.dMax = 10;
 			randomWalkModel.vMax = 10;
 			density = 3;
+			randomWalkModel.updateBitmab(new darina());
 			transparent = 0x01000000;
 
 		

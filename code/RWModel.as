@@ -18,7 +18,7 @@
 		
 		public var capacity:uint;
 		
-		private var modelWidth:uint = 1000;  
+		private var modelWidth:uint = 1500;  
         private var modelHeight:uint = 1000;        
         
 		public var vMax:Number = 1;
@@ -193,6 +193,13 @@
 			generator = new RWMergeGenerator(_template1, _template2, _weight, dns);
 			
 		}
+		
+		public function updateBitmab(_bitmap:BitmapData){
+			bitmap = _bitmap;
+			ratio.x = (bitmap.width-1)/(modelWidth);
+			ratio.y = (bitmap.height-1)/(modelHeight);
+			
+			}
 		
 		public function updateMergeWeight(_weight:Number){
 			
